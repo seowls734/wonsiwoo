@@ -373,13 +373,16 @@ function draw(now) {
   drawSky(now);
   g.save();
   const sh = shake > 0 ? shake * 10 : 0;
+  // 화면 확대: 화면 크기에 맞춰 계단과 캐릭터를 크게 그려요 (폰 ~1.5배, PC ~2배)
+  const Z = clamp(Math.min(W / 260, H / 420), 1.4, 2.1);
   // 화면 아래쪽(버튼 위)에 캐릭터가 오도록
-  const ox = W / 2 - camX + rnd(-sh, sh), oy = H - 190 - camY + rnd(-sh, sh);
-  g.translate(ox, oy);
+  const ax = W / 2 + rnd(-sh, sh), ay = H - 150 - 46 * Z + rnd(-sh, sh);
+  g.translate(ax, ay); g.scale(Z, Z); g.translate(-camX, -camY);
   const from = Math.max(0, pos - 14), to = Math.min(stairs.length - 1, pos + 26);
   for (let i = to; i >= from; i--) {
     const sx = stairs[i].x * SW, sy = -i * SH;
-    if (sy + oy < -60 || sy + oy > H + 60) continue;
+    const scrY = (sy - camY) * Z + ay, scrX = (sx - camX) * Z + ax;
+    if (scrY < -80 || scrY > H + 80 || scrX < -SW * Z || scrX > W + SW * Z) continue;
     drawStair(stairs[i], i, sx, sy);
   }
   for (const f of fx) { g.globalAlpha = clamp(f.life / f.max, 0, 1); g.fillStyle = f.c; g.beginPath(); g.arc(f.x, f.y, f.r, 0, TAU); g.fill(); }
