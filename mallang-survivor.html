@@ -1644,7 +1644,11 @@ function update(dt) {
 
   for (const f of fx) { f.life -= dt; if (f.vx) { f.x += f.vx * dt; f.y += f.vy * dt; f.vx *= .93; f.vy *= .93; } }
   fx = fx.filter(f => f.life > 0);
-  for (const t of texts) { t.life -= dt; t.y -= 26 * dt; }
+  for (const t of texts) {
+    t.life -= dt;
+    if (t.pop) { t.x += t.vx * dt; t.y += t.vy * dt; t.vy += 260 * dt; t.vx *= .92; }   // 포물선으로 톡
+    else t.y -= 26 * dt;
+  }
   texts = texts.filter(t => t.life > 0);
 
   cam.x += (P.x - cam.x) * Math.min(1, dt * 7);
