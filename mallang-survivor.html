@@ -1057,6 +1057,22 @@ function offer() {
   }
   three.forEach(o => {
     const D = o.d;
+    if (o.kind === "e") {                           // ★ 진화 카드
+      const ns = o.s + 1, c = STAR_COL[ns - 1];
+      const perks = ["피해 +45%", "범위 +7%", "쿨타임 -7%"].concat(ns === 2 || ns === 4 ? ["발사 수 +1"] : []);
+      const b = el("button", "pick evo",
+        `<div class="ic" style="background:${c}22;border:1px solid ${c}">${D.ic}</div>
+         <div class="nm">${displayName(D)}<br><span style="color:${c}">→ ${evoName(D, ns)}</span></div>
+         <div class="lv" style="color:${c}">${starText(o.s) || "LV 5"} → ${starText(ns)} 진화</div>
+         <div class="ds">${perks.join(" · ")}<div class="wst">${weaponStats(D, 5)}</div></div>`);
+      b.style.setProperty("--ec", c);
+      b.onclick = () => {
+        evolveWeapon(D);
+        $("#levelup").hidden = true; state = "play"; lastT = performance.now(); refreshFuseBtn();
+      };
+      box.appendChild(b);
+      return;
+    }
     const desc = o.kind === "w"
       ? (o.l ? "더 강해져요" : archText(D)) + `<div class="wst">${weaponStats(D, o.l)}</div>`
       : (D.pct ? `${D.name.split(" ").slice(1).join(" ")} +${Math.round(D.val * 100)}%` : `${D.name.split(" ").slice(1).join(" ")} +${D.val}`);
