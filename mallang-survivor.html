@@ -1293,8 +1293,8 @@ function renderFuseRun() {
     const sel = fuseSel.indexOf(id) >= 0;
     const b = el("button", "wcard" + (sel ? " sel" : "") + (w.fused ? " fz" : "") + (full ? " full" : ""),
       `<div class="ic" style="background:${w.col}22;border:1px solid ${w.col}77">${w.ic}</div>
-       <div class="nm">${w.name}</div>
-       <div class="lv" style="color:${w.col}">LV ${lv}${w.fused ? " · 합성 " + partsOf(w).length + "중" : ""}</div>
+       <div class="nm">${displayName(w)}</div>
+       <div class="lv" style="color:${w.col}">${starOf(id) ? `<span style="color:${STAR_COL[starOf(id) - 1]}">${starText(starOf(id))}</span> ` : ""}LV ${lv}${w.fused ? " · 합성 " + partsOf(w).length + "중" : ""}</div>
        <div class="ds">${partsOf(w).map(s => archText(s)).join("<br>")}</div>
        ${full ? `<div class="tag">더 못 합쳐요</div>` : ""}`);
     b.style.borderColor = w.col + "66";
