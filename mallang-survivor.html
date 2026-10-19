@@ -748,7 +748,7 @@ function gearStatText(base, gr) {
 }
 function itemCard(x, extra) {
   const gr = GRADES[x.gr];
-  const cls = "item" + (extra && extra.can ? " can" : "") + (gr.shine ? " shine" : "") + (gr.shine >= 2 ? " ultra" : "") + (gr.shine === 3 ? " cosmic" : "");
+  const cls = "item" + (extra && extra.can ? " can" : "") + (gr.shine ? " shine" : "") + (gr.cls ? " " + gr.cls : gr.shine === 2 ? " ultra" : "");
   const b = el("button", cls);
   b.innerHTML = `<div class="ic">${x.base.ic}</div><div class="nm">${x.base.name}</div>
     <div class="gr" style="color:${gr.raw}">${gr.nm}</div>
