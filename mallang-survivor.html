@@ -1495,6 +1495,12 @@ function update(dt) {
   P.x += P.vx * dt; P.y += P.vy * dt;
   if (Math.abs(P.vx) > 8) P.face = Math.sign(P.vx);
   P.step += Math.hypot(P.vx, P.vy) * dt;
+  // 걸을 때 발밑에 몽글몽글 먼지
+  P.dust = (P.dust || 0) - dt;
+  if (P.dust <= 0 && Math.hypot(P.vx, P.vy) > 60 && fx.length < 240) {
+    P.dust = .09;
+    fx.push({ x: P.x + rnd(-6, 6), y: P.y + 14, vx: -P.vx * .15 + rnd(-12, 12), vy: rnd(-18, -4), r: rnd(2.5, 4.5), life: .4, max: .4, c: "rgba(220,230,255,.5)" });
+  }
 
   spawnT -= dt;
   if (spawnT <= 0) { spawnT = Math.max(.14, .8 - time / 150); spawnWave(); }
