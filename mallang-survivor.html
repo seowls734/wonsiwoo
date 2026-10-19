@@ -1393,9 +1393,11 @@ function fireWeapons(dt) {
         const t = i === 0 ? target : (mobs.length ? mobs[Math.floor(Math.random() * mobs.length)] : null);
         if (!t || picked.includes(t) || (t.x - P.x) ** 2 + (t.y - P.y) ** 2 > 620 * 620) continue;
         picked.push(t);
-        // 하늘에서 떨어지는 꼬리 + 잠깐 뒤 그 자리에서 쾅
-        fx.push({ bolt: 1, x1: t.x - 70, y1: t.y - 300, x2: t.x, y2: t.y, life: .3, max: .3, c: w.col });
-        proj({ k: "bomb", x: t.x, y: t.y, vx: 0, vy: 0, dmg, r: 10, life: .3, boom: p.boom * area, col: w.col, eff: w.eff });
+        // 바닥 경고 표시 + 하늘에서 떨어지는 불덩이 → 잠깐 뒤 그 자리에서 쾅
+        const B = p.boom * area, dl = .34;
+        fx.push({ warn: 1, x: t.x, y: t.y, r: B, life: dl, max: dl, c: w.col });
+        fx.push({ meteor: 1, x1: t.x - 90, y1: t.y - 340, x2: t.x, y2: t.y, rr: 8 + B * .09, life: dl, max: dl, c: w.col });
+        proj({ k: "bomb", meteor: 1, x: t.x, y: t.y, vx: 0, vy: 0, dmg, r: 10, life: dl, boom: B, col: w.col, eff: w.eff });
       }
       tone(700, 120, .3, "sawtooth", .08);
     } else if (w.arch === "cross") {
