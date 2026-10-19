@@ -175,8 +175,9 @@ addEventListener("keydown", e => {
   if (e.repeat) return;
   const k = e.code;
   if (state !== "play") { if ((k === "Space" || k === "Enter") && state !== "falling") start(); return; }
-  if (k === "KeyA") press(true, $("bTurn"));
-  else if (k === "KeyL") press(false, $("bUp"));
+  // 한글 입력 상태에서도 되도록 ㅁ(A 자리) · ㅣ(L 자리)도 받아요
+  if (k === "KeyA" || e.key === "ㅁ") press(true, $("bTurn"));
+  else if (k === "KeyL" || e.key === "ㅣ") press(false, $("bUp"));
 });
 
 function start() {
