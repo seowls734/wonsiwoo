@@ -1,6 +1,32 @@
 <!doctype html>
+<html lang="ko">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="refresh" content="0; url=mallang-survivor.html">
-<title>말랑 서바이버</title>
-<a href="mallang-survivor.html">말랑 서바이버 시작하기</a>
+<title>말랑 게임방</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+<style>
+  :root{--ink:#f2eefc;--dim:#a79dc6}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0%,#2c1d63,#121628 60%);color:var(--ink);font-family:"Jua",sans-serif;
+    display:flex;flex-direction:column;align-items:center;padding:40px 16px}
+  h1{font-size:40px;font-weight:400;margin:0 0 6px;background:linear-gradient(90deg,#5fe3b6,#ffd45e,#ff6f9c);-webkit-background-clip:text;background-clip:text;color:transparent}
+  p{color:var(--dim);margin:0 0 28px}
+  .list{display:grid;gap:14px;width:min(420px,100%)}
+  a{display:flex;align-items:center;gap:16px;padding:18px;border-radius:20px;text-decoration:none;color:var(--ink);
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);transition:transform .15s,background .15s}
+  a:hover,a:active{transform:translateY(-2px);background:rgba(255,255,255,.12)}
+  .ic{font-size:40px;width:64px;height:64px;display:grid;place-items:center;border-radius:16px;flex:none}
+  b{display:block;font-size:22px;font-weight:400}
+  small{color:var(--dim);font-size:13px;font-family:system-ui,sans-serif}
+</style>
+</head>
+<body>
+  <h1>말랑 게임방</h1>
+  <p>하고 싶은 게임을 골라요!</p>
+  <div class="list">
+    <a href="mallang-survivor.html"><div class="ic" style="background:#5fe3b622">⚔️</div><div><b>말랑 서바이버</b><small>몰려오는 말랑이들을 무기로 물리치며 버티기</small></div></a>
+    <a href="stairs.html"><div class="ic" style="background:#ffd45e22">🪜</div><div><b>말랑 무한계단</b><small>방향을 바꿔 가며 끝없이 계단 오르기</small></div></a>
+  </div>
+</body>
+</html>
