@@ -1249,6 +1249,9 @@ function makeFused(aId, bId) {
   delete wst[aId]; delete wst[bId];
   for (const k in wst) if (k.indexOf(aId + "#") === 0 || k.indexOf(bId + "#") === 0) delete wst[k];
   P.weapons[w.id] = Math.min(5, Math.max(lvA, lvB) + (Math.min(lvA, lvB) >= 3 ? 1 : 0));
+  const sk = Math.max(starOf(aId), starOf(bId));    // 진화 단계는 높은 쪽을 이어받아요
+  if (sk) P.stars[w.id] = sk;
+  delete P.stars[aId]; delete P.stars[bId];
   return w;
 }
 function fuseBurst(w) {
