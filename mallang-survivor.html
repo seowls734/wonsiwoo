@@ -2075,11 +2075,17 @@ function draw() {
       g.beginPath(); g.arc(f.x, f.y, f.r, 0, TAU); g.fill(); g.globalAlpha = 1;
     }
   }
+  g.textAlign = "center"; g.lineJoin = "round";
   for (const t of texts) {
-    g.globalAlpha = clamp(t.life / t.max, 0, 1);
-    g.fillStyle = t.c; g.font = `700 ${t.s}px "Chakra Petch", sans-serif`; g.textAlign = "center";
-    g.fillText(t.t, t.x, t.y); g.globalAlpha = 1;
+    const k = clamp(t.life / t.max, 0, 1);
+    g.globalAlpha = Math.min(1, k * 2.2);
+    // 처음엔 크게 팡! 했다가 제 크기로
+    const sz = t.pop ? t.s * (1 + Math.max(0, k - .75) * 2.4) : t.s;
+    g.font = `700 ${sz.toFixed(1)}px "Chakra Petch", sans-serif`;
+    g.strokeStyle = "rgba(10,8,24,.75)"; g.lineWidth = 3.5; g.strokeText(t.t, t.x, t.y);
+    g.fillStyle = t.c; g.fillText(t.t, t.x, t.y); g.globalAlpha = 1;
   }
+  g.lineJoin = "miter";
   g.restore();
   hud();
 }
