@@ -182,7 +182,9 @@ addEventListener("keydown", e => {
   else if (k === "KeyL" || e.key === "ㅣ") press(false, $("bUp"));
 });
 
+let overTimer = 0;
 function start() {
+  clearTimeout(overTimer);                       // 떨어지는 중에 다시 시작해도 결과창이 안 뜨게
   ac(); reset(); state = "play"; t0 = performance.now();
   $("title").hidden = true; $("over").hidden = true;
   tone(660, 990, .15, "triangle", .1);
