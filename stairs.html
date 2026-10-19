@@ -345,7 +345,7 @@ function drawHero(x, y, now, rot) {
 }
 function hud(now) {
   // 시간 게이지
-  const bw = Math.min(W - 32, 420), bx = (W - bw) / 2, by = 18 + (parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sat")) || 0);
+  const bw = Math.min(W - 32, 420), bx = (W - bw) / 2, by = 18;
   g.fillStyle = "rgba(10,8,24,.5)";
   g.beginPath(); g.roundRect ? g.roundRect(bx, by, bw, 18, 9) : g.rect(bx, by, bw, 18); g.fill();
   const low = timeLeft < .25, col = low ? (Math.floor(now / 120) % 2 ? "#ff5f6b" : "#ffb0b6") : timeLeft < .5 ? "#ffd45e" : "#5fe3b6";
