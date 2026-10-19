@@ -471,6 +471,22 @@ const PASSIVES = [];
     i++;
   }
 })();
+// 새 공격 방식 3종 — 기존 무기 id(w0~w99)는 그대로 두고 뒤에 따로 붙여요 (도감 저장 유지)
+const NEW_ARCH = [
+  { k: "meteor", nm: "운석", ic: "☄️", els: [0, 10, 15, 18, 6], base: { cd: 2.2, dmg: 30, n: 1, boom: 66 } },
+  { k: "cross", nm: "십자포", ic: "✴️", els: [6, 2, 12, 17, 3], base: { cd: 1.9, dmg: 15, len: 300, wide: 14 } },
+  { k: "thorn", nm: "가시", ic: "🌵", els: [5, 9, 19, 13, 1], base: { cd: 1.7, dmg: 9, n: 8, sp: 360, pierce: 2 } },
+];
+NEW_ARCH.forEach((ar, ai) => ar.els.forEach((e, j) => {
+  const em = ELEM[e], p = {};
+  for (const k in ar.base) p[k] = ar.base[k];
+  p.dmg = Math.round(p.dmg * (1 + j * .14) * rnd(.92, 1.1));
+  p.cd = +(p.cd * rnd(.86, 1.12)).toFixed(2);
+  WEAPONS.push({
+    id: "wn" + (ai * 5 + j), name: em[0] + " " + ar.nm, ic: ar.ic, col: em[1], arch: ar.k, eff: em[2], p,
+    em: em[0], an: ar.nm,
+  });
+}));
 WEAPONS.push(LEGEND_WEAPON);          // 최강 무기는 따로
 const byId = {};
 WEAPONS.forEach(w => byId[w.id] = w);
