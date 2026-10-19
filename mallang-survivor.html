@@ -1407,7 +1407,11 @@ function fireWeapons(dt) {
       const len = p.len * area * (1 + (lv - 1) * .08), wide = p.wide * area;
       for (let i = 0; i < n; i++) {
         const a = st.rot + i / n * TAU;
-        fx.push({ beam: 1, x: P.x, y: P.y, a, len, w: wide, life: .22, max: .22, c: w.col });
+        fx.push({ beam: 1, cross: 1, x: P.x, y: P.y, a, len, w: wide, life: .3, max: .3, c: w.col });
+        for (let k = 1; k <= 3; k++) {             // 빛줄기를 따라 튀는 반짝이
+          const d = len * k / 4, s = rnd(30, 90), sa = a + (Math.random() < .5 ? 1 : -1) * Math.PI / 2;
+          if (fx.length < 260) fx.push({ x: P.x + Math.cos(a) * d, y: P.y + Math.sin(a) * d, vx: Math.cos(sa) * s, vy: Math.sin(sa) * s, r: rnd(2, 3.5), life: .35, max: .35, c: "#fff" });
+        }
         for (const m of mobs) {
           const dx = m.x - P.x, dy = m.y - P.y;
           const along = dx * Math.cos(a) + dy * Math.sin(a);
@@ -1415,6 +1419,7 @@ function fireWeapons(dt) {
           if (along > 0 && along < len && perp < wide / 2 + m.r) hit(m, dmg, Math.cos(a) * 6, Math.sin(a) * 6, w.eff);
         }
       }
+      fx.push({ flare: 1, x: P.x, y: P.y, r: 30 * area, rot: st.rot, life: .28, max: .28, c: w.col });
       tone(1100, 500, .14, "triangle", .07);
     } else if (w.arch === "thorn") {
       st.cd = cd;
