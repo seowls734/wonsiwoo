@@ -1052,7 +1052,7 @@ function offer() {
   three.forEach(o => {
     const D = o.d;
     const desc = o.kind === "w"
-      ? (o.l ? "더 강해져요" : archText(D))
+      ? (o.l ? "더 강해져요" : archText(D)) + `<div class="wst">${weaponStats(D, o.l)}</div>`
       : (D.pct ? `${D.name.split(" ").slice(1).join(" ")} +${Math.round(D.val * 100)}%` : `${D.name.split(" ").slice(1).join(" ")} +${D.val}`);
     const b = el("button", "pick" + (D.legend ? " legend" : ""),
       `<div class="ic" style="background:${D.col}22;border:1px solid ${D.col}66">${D.ic}</div>
