@@ -1639,6 +1639,12 @@ function update(dt) {
 function explode(s) {
   fx.push({ ring: 1, x: s.x, y: s.y, r: 6, to: s.boom, life: .35, max: .35, c: s.col });
   burst(s.x, s.y, s.col, 10, 180);
+  if (s.meteor) {                                  // 운석: 그을린 자국 + 돌 파편 + 하얀 섬광
+    fx.unshift({ crater: 1, x: s.x, y: s.y, r: s.boom * .6, life: 1.6, max: 1.6, c: s.col });
+    fx.push({ ring: 1, x: s.x, y: s.y, r: 4, to: s.boom * 1.35, life: .5, max: .5, c: "#fff" });
+    burst(s.x, s.y, "#6b4a3a", 8, 260); burst(s.x, s.y, "#ffd45e", 6, 220);
+    shake = Math.max(shake, .3);
+  }
   for (const m of mobs) if ((m.x - s.x) ** 2 + (m.y - s.y) ** 2 < s.boom ** 2) {
     const a = Math.atan2(m.y - s.y, m.x - s.x);
     hit(m, s.dmg, Math.cos(a) * 14, Math.sin(a) * 14, s.eff);
