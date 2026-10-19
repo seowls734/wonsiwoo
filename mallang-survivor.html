@@ -1426,9 +1426,10 @@ function fireWeapons(dt) {
       const n = p.n + nExtra * 2, off = Math.random() * TAU;
       for (let i = 0; i < n; i++) {
         const a = off + i / n * TAU;
-        proj({ k: "p", x: P.x, y: P.y, vx: Math.cos(a) * p.sp * P.pshot, vy: Math.sin(a) * p.sp * P.pshot,
+        proj({ k: "p", thorn: 1, x: P.x, y: P.y, vx: Math.cos(a) * p.sp * P.pshot, vy: Math.sin(a) * p.sp * P.pshot,
           dmg, r: 8 * area, life: 1.4, pierce: p.pierce + Math.floor(lv / 3), hits: [], col: w.col, eff: w.eff });
       }
+      fx.push({ ring: 1, x: P.x, y: P.y, r: 10, to: 46 * area, life: .2, max: .2, c: w.col });
       nz(1800, .06, .07, 1.8);
     }
   }
