@@ -851,11 +851,14 @@ function rollGrade(minGrade) {
   let gr = r < 46 ? 0 : r < 74 ? 1 : r < 91 ? 2 : r < 98 ? 3 : r < 99.8 ? 4 : 5;
   return Math.max(gr, minGrade || 0);
 }
+let pulling = false;
 function pull(n) {
+  if (pulling) return;
   const cost = n === 1 ? 60 : 500;
   if (DB.coins < cost) { tone(240, 150, .2, "sine", .12); return; }
   DB.coins -= cost;
   const got = [];
+  const ownedBefore = new Set(Object.keys(DB.inv).map(k => (parseKey(k).base || {}).id));
   for (let i = 0; i < n; i++) {
     const guarantee = (n === 10 && i === 9 && !got.some(x => x.gr >= 2)) ? 2 : 0;
     // 이미 가진 장비가 조금 더 자주 나와서 합성 재료가 모이게
