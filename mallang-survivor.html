@@ -1194,7 +1194,16 @@ function hit(m, dmg, kx, ky, eff) {
   if (eff === "slow") { m.slow = Math.max(m.slow, 1.4 * P.dur); m.slowAmt = .5; }
   if (eff === "stun") m.stun = Math.max(m.stun || 0, .35 * P.dur);
   if (eff === "knock") { const a = Math.atan2(m.y - P.y, m.x - P.x); m.x += Math.cos(a) * 14; m.y += Math.sin(a) * 14; }
-  if (texts.length < 40) texts.push({ x: m.x, y: m.y - m.r, t: d, life: .5, max: .5, c: crit ? "#ffd45e" : "#fff", s: crit ? 20 : 15 });
+  // 피해 숫자: 톡 튀어 오르며 커졌다 작아짐. 치명타는 크게 + "치명!" + 별 섬광
+  const effCol = { burn: "#ff9a5e", slow: "#9ff0ff", stun: "#ffe45e" }[eff];
+  if (texts.length < 40) texts.push({ x: m.x + rnd(-6, 6), y: m.y - m.r, vx: rnd(-30, 30), vy: crit ? -120 : -90, t: crit ? d + "!" : d, life: crit ? .75 : .55, max: crit ? .75 : .55,
+    c: crit ? "#ffd45e" : (effCol || "#fff"), s: crit ? 22 : 15, pop: 1 });
+  if (crit && fx.length < 250) fx.push({ flare: 1, x: m.x, y: m.y, r: 16 + m.r * .5, rot: Math.random(), life: .2, max: .2, c: "#ffd45e" });
+  if (fx.length < 230) {                            // 맞은 자리에 작은 불똥
+    const ha = Math.atan2(m.y - P.y, m.x - P.x);
+    for (let k = 0; k < 2; k++) { const q = ha + rnd(-.8, .8), s = rnd(60, 160);
+      fx.push({ x: m.x, y: m.y, vx: Math.cos(q) * s, vy: Math.sin(q) * s, r: rnd(1.5, 2.8), life: .22, max: .22, c: effCol || "#fff" }); }
+  }
   if (P.lifesteal && Math.random() < .3) { P.hp = Math.min(P.maxHp, P.hp + d * P.lifesteal); }
   if (m.hp <= 0) killMob(m);
 }
