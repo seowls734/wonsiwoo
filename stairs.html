@@ -175,9 +175,8 @@ addEventListener("keydown", e => {
   if (e.repeat) return;
   const k = e.code;
   if (state !== "play") { if ((k === "Space" || k === "Enter") && state !== "falling") start(); return; }
-  if (k === "ArrowLeft" || k === "KeyA" || k === "KeyF") press(true, $("bTurn"));
-  else if (k === "ArrowRight" || k === "KeyD" || k === "KeyJ" || k === "Space" || k === "ArrowUp") press(false, $("bUp"));
-  if (k === "Space" || k.startsWith("Arrow")) e.preventDefault();
+  if (k === "KeyA") press(true, $("bTurn"));
+  else if (k === "KeyL") press(false, $("bUp"));
 });
 
 function start() {
