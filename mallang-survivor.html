@@ -2274,7 +2274,7 @@ function hud() {
   g.fillStyle = "#fff"; g.font = '700 11px "Chakra Petch"'; g.textAlign = "center";
   g.fillText(Math.max(0, Math.ceil(P.hp)) + " / " + Math.round(P.maxHp), W / 2, hy + 12);
   let x = 12, y = H - 72;
-  const row = (D, lv) => {
+  const row = (D, lv, star) => {
     if (!D) return;
     g.fillStyle = D.col + "33";
     g.beginPath(); g.roundRect ? g.roundRect(x, y, 32, 32, 10) : g.rect(x, y, 32, 32); g.fill();
