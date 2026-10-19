@@ -794,6 +794,7 @@ function renderFuse() {
       banner(`${x.base.ic} ${x.base.name} → ${ng.nm}!`, ng.raw);
       [660, 880, 1180, 1480].slice(0, 2 + Math.min(2, x.gr)).forEach((f, i) => tone(f, 0, .2, "triangle", .14, i * .09));
       if (x.gr + 1 >= 7) [1318, 1568, 2093].forEach((f, i) => tone(f, 0, .5, "triangle", .16, .3 + i * .12));
+      celebrate(x.gr + 1, x.base);
     };
     box.appendChild(b);
   });
