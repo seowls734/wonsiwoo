@@ -1829,9 +1829,24 @@ function draw() {
     }
   }
   for (const s of shots) {
+    if (s.meteor) continue;                        // 운석은 fx 쪽에서 그려요
     g.fillStyle = s.col || "#ffd45e";
     if (s.k === "p") {
       g.save(); g.translate(s.x, s.y); g.rotate(Math.atan2(s.vy, s.vx));
+      // 날아가는 꼬리 — 속도가 빠를수록 길게
+      const tl = Math.min(46, Math.hypot(s.vx, s.vy) * .07) + s.r;
+      const tg = g.createLinearGradient(-tl, 0, 0, 0);
+      tg.addColorStop(0, "rgba(255,255,255,0)"); tg.addColorStop(1, s.col || "#ffd45e");
+      g.globalAlpha = .45; g.fillStyle = tg;
+      g.beginPath(); g.moveTo(-tl, 0); g.lineTo(0, -s.r * .6); g.lineTo(0, s.r * .6); g.closePath(); g.fill();
+      g.globalAlpha = 1; g.fillStyle = s.col || "#ffd45e";
+      if (s.thorn) {                               // 가시: 뾰족한 삼각 가시 + 어두운 테두리
+        g.beginPath(); g.moveTo(s.r * 2, 0); g.lineTo(-s.r * .9, -s.r * .75); g.lineTo(-s.r * .35, 0); g.lineTo(-s.r * .9, s.r * .75); g.closePath();
+        g.fill(); g.strokeStyle = "rgba(20,30,10,.55)"; g.lineWidth = 1.5; g.stroke();
+        g.strokeStyle = "rgba(255,255,255,.6)"; g.lineWidth = 1;
+        g.beginPath(); g.moveTo(s.r * 1.6, 0); g.lineTo(-s.r * .2, -s.r * .3); g.stroke();
+        g.restore(); continue;
+      }
       g.beginPath(); g.ellipse(0, 0, s.r * 1.3, s.r * .75, 0, 0, TAU); g.fill();
       g.fillStyle = "rgba(255,255,255,.55)";
       g.beginPath(); g.ellipse(-s.r * .3, 0, s.r * .4, s.r * .3, 0, 0, TAU); g.fill();
