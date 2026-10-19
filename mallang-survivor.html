@@ -283,13 +283,16 @@
     </div>
 
     <div class="pane" id="pane-home">
-      <p class="lead">말랑이들이 몰려와요. <b>8분</b>을 버티면 승리! 움직이기만 하면 무기는 알아서 나가요.<br>
+      <p class="lead">말랑이들이 몰려와요. <b>일반 모드</b>는 <b>15분</b>을 버티면 승리! <b>무한 모드</b>는 쓰러질 때까지 끝없이! 움직이기만 하면 무기는 알아서 나가요.<br>
       장비를 뽑고 합성해서 더 강해진 채로 출격하세요.<br>
       <b style="color:#ff8ad4">레벨 5</b>부터는 전투 중에 <b>무기 2개를 합성</b>할 수 있어요 (F 키).<br>몬스터 31종 · 무기 101종 · 스킬 100종을 <b>도감</b>에서 모아 보세요.</p>
       <div class="power" style="margin-top:12px"><span class="lab">전투력</span><b id="cp">0</b></div>
       <div class="stats" id="homeStats" style="margin:12px 0"></div>
       <div class="stats" id="bonusStats" style="margin-bottom:14px"></div>
-      <button type="button" class="go" id="play" style="width:100%">출격하기</button>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="go" id="play" style="flex:1">출격하기<br><small style="font-size:12px;opacity:.8">일반 모드 · 15분</small></button>
+        <button type="button" class="go" id="playInf" style="flex:1;background:linear-gradient(135deg,#8f7bff,#ff36ff)">♾️ 무한 모드<br><small style="font-size:12px;opacity:.8">끝까지 버티기</small></button>
+      </div>
       <p class="hint" style="margin-top:10px">W A S D · 방향키로 이동 · P 일시정지 · 폰에서는 조이스틱</p>
     </div>
 
@@ -665,7 +668,7 @@ function statLine(b) {
 function renderLobby() {
   renderCoins();
   $("#homeStats").innerHTML =
-    `<span>최고 기록 <b>${fmt(DB.bestTime || 0)}</b></span><span>최다 처치 <b>${DB.bestKills || 0}</b></span>` +
+    `<span>최고 기록 <b>${fmt(DB.bestTime || 0)}</b></span><span>♾️ 무한 최고 <b>${fmt(DB.bestInf || 0)}</b></span><span>최다 처치 <b>${DB.bestKills || 0}</b></span>` +
     `<span>출격 <b>${DB.runs || 0}</b>번</span>` + (DB.wins ? `<span>완주 <b>${DB.wins}</b>번</span>` : "");
   const mb = metaBonus();
   $("#bonusStats").innerHTML = statLine(mb);
@@ -1052,6 +1055,7 @@ function offer() {
     pool.push({ kind: "p", d: p, l });
   }
   // 이미 가진 걸 조금 더 자주 보여줘 성장 느낌이 나게
+  const evos = pool.filter(x => x.kind === "e");
   const owned = pool.filter(x => x.l > 0), fresh = pool.filter(x => !x.l);
   const three = [];
   while (three.length < 3 && (owned.length || fresh.length)) {
@@ -1644,8 +1648,10 @@ function spawnWave() {
 }
 let bossIdx = 0;
 function spawnBoss() {
-  const def = ENEMIES[BOSSES[Math.min(bossIdx++, BOSSES.length - 1)]];
-  const scale = 1 + (time / 60) * .35;
+  // 보스는 순서대로 돌아가며 계속 나와요. 한 바퀴 돌 때마다 더 강해짐
+  const lap = Math.floor(bossIdx / BOSSES.length);
+  const def = ENEMIES[BOSSES[bossIdx++ % BOSSES.length]];
+  const scale = (1 + (time / 60) * .35) * (1 + lap * .5);
   const a = Math.random() * TAU, dist = Math.max(W, H) * .6;
   makeMob(def, P.x + Math.cos(a) * dist, P.y + Math.sin(a) * dist, scale);
   texts.push({ x: P.x, y: P.y - 90, t: def.nm + " 등장!", life: 1.8, max: 1.8, c: def.col, s: 27 });
@@ -1824,7 +1830,7 @@ function update(dt) {
 
   cam.x += (P.x - cam.x) * Math.min(1, dt * 7);
   cam.y += (P.y - cam.y) * Math.min(1, dt * 7);
-  if (time >= 480) finish(true);
+  if (runMode === "normal" && time >= RUN_T) finish(true);
 }
 function explode(s) {
   fx.push({ ring: 1, x: s.x, y: s.y, r: 6, to: s.boom, life: .35, max: .35, c: s.col });
@@ -1845,15 +1851,20 @@ function explode(s) {
 
 function finish(win) {
   state = "over"; $("#wfuse").hidden = true; refreshFuseBtn(); dexDirty = false;
-  const earned = Math.round(P.kills * 1.4 + time / 2) + (win ? 400 : 0);
+  const inf = runMode === "inf";
+  const earned = Math.round(P.kills * 1.4 + time / 2) + (win ? 700 : 0) + (inf ? Math.floor(time / 300) * 150 : 0);
+  const newInf = inf && time > (DB.bestInf || 0);
+  if (newInf) DB.bestInf = time;
   DB.coins += earned; P.coins = earned;
   DB.runs = (DB.runs || 0) + 1;
   if (time > (DB.bestTime || 0)) DB.bestTime = time;
   if (P.kills > (DB.bestKills || 0)) DB.bestKills = P.kills;
   if (win) DB.wins = (DB.wins || 0) + 1;
   save();
-  $("#overTitle").textContent = win ? "살아남았다!" : "쓰러졌어요";
-  $("#overNote").textContent = win ? "8분을 전부 버텼어요. 진짜 대단해요!" : `${fmt(time)} 동안 버텼어요. 장비를 더 키워서 다시 도전!`;
+  $("#overTitle").textContent = win ? "살아남았다!" : inf ? (newInf ? "무한 모드 신기록!" : "무한 모드 종료") : "쓰러졌어요";
+  $("#overNote").textContent = win ? "15분을 전부 버텼어요. 진짜 대단해요!"
+    : inf ? `${fmt(time)} 동안 버텼어요. 최고 기록 ${fmt(DB.bestInf)} · 5분마다 보너스 코인 🪙150`
+    : `${fmt(time)} 동안 버텼어요. 장비를 더 키워서 다시 도전!`;
   $("#overStats").innerHTML =
     `<span>버틴 시간 <b>${fmt(time)}</b></span><span>처치 <b>${P.kills}</b></span><span>레벨 <b>${P.lv}</b></span>` +
     `<span>획득 <b>🪙 ${earned}</b></span>` +
@@ -2268,7 +2279,7 @@ function hud() {
   g.font = '700 30px "Jua", sans-serif'; g.textAlign = "center";
   g.fillStyle = "rgba(255,255,255,.92)"; g.fillText(fmt(time), W / 2, 50);
   g.font = '500 12px "Noto Sans KR"'; g.fillStyle = "rgba(255,255,255,.55)";
-  g.fillText("8:00까지 버티기 · 처치 " + P.kills, W / 2, 70);
+  g.fillText((runMode === "inf" ? "♾️ 무한 모드 · 최고 " + fmt(DB.bestInf || 0) : fmt(RUN_T) + "까지 버티기") + " · 처치 " + P.kills, W / 2, 70);
   const hw = 220, hx = W / 2 - hw / 2, hy = H - 34;
   g.fillStyle = "rgba(0,0,0,.5)";
   g.beginPath(); g.roundRect ? g.roundRect(hx, hy, hw, 16, 8) : g.rect(hx, hy, hw, 16); g.fill();
@@ -2328,7 +2339,11 @@ function frame(now) {
     }
   } else draw();
 }
-function startRun() {
+// 일반 모드: RUN_T 초 버티면 승리 / 무한 모드: 쓰러질 때까지
+const RUN_T = 900;
+let runMode = "normal";
+function startRun(mode) {
+  if (typeof mode === "string") runMode = mode;
   ac(); newRun(); clearKeys();
   $("#lobby").hidden = true; $("#over").hidden = true; $("#paused").hidden = true; $("#levelup").hidden = true;
   $("#wfuse").hidden = true;
@@ -2374,8 +2389,9 @@ if (matchMedia("(pointer: coarse)").matches || "ontouchstart" in window) {
   const off = e => { if (e.pointerId !== id) return; id = null; touch.on = false; touch.x = touch.y = 0; nub.style.transform = ""; };
   stick.addEventListener("pointerup", off); stick.addEventListener("pointercancel", off);
 }
-$("#play").onclick = startRun;
-$("#again").onclick = startRun;
+$("#play").onclick = () => startRun("normal");
+$("#playInf").onclick = () => startRun("inf");
+$("#again").onclick = () => startRun(runMode);
 $("#toLobby").onclick = toLobby;
 $("#resume").onclick = togglePause;
 $("#quit").onclick = toLobby;
