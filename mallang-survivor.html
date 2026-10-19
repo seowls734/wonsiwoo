@@ -156,6 +156,25 @@
   .results{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;min-height:10px}
   .res{border-radius:11px;padding:7px 9px;font-size:12px;display:flex;align-items:center;gap:6px;border:1px solid}
   .res b{font-family:"Chakra Petch";font-size:11px}
+  /* 뽑기 연출: 캡슐 흔들림 → 카드가 하나씩 뒤집힘 */
+  .res.hid{background:linear-gradient(135deg,#2a2350,#1a1636)!important;border-color:var(--edge)!important;color:var(--dim);animation:pop .3s cubic-bezier(.2,1.5,.4,1) backwards,peek 1s ease-in-out infinite alternate}
+  .res.hid.hint{box-shadow:0 0 14px -2px var(--hc)!important;border-color:var(--hc)!important}
+  @keyframes peek{to{transform:translateY(-2px)}}
+  .res.flip{animation:flip .42s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes flip{0%{transform:rotateY(90deg) scale(.9)}100%{transform:none}}
+  .res .new{font-size:9.5px;font-weight:700;color:#06291f;background:var(--mint);border-radius:5px;padding:0 4px;margin-left:2px;font-family:"Chakra Petch"}
+  .res.top{animation:flip .5s cubic-bezier(.3,1.6,.5,1),topglow 1.4s ease-in-out .5s infinite alternate}
+  @keyframes topglow{to{filter:brightness(1.25)}}
+  .gsum{width:100%;text-align:center;font-size:11.5px;color:var(--dim);margin-top:4px;animation:pop .3s ease-out}
+  .gcap{position:fixed;inset:0;z-index:12;display:grid;place-items:center;background:rgba(8,6,20,.62);cursor:pointer;animation:celebBg .9s ease-out reverse}
+  .gcap .ball{width:110px;height:110px;border-radius:50%;position:relative;animation:capShake .14s ease-in-out infinite alternate;
+    background:linear-gradient(180deg,var(--cc) 0 50%,#f2eefc 50% 100%);box-shadow:0 0 0 4px #1b2238 inset,0 0 40px -4px var(--cc)}
+  .gcap .ball::after{content:"";position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px;border-radius:50%;background:#f2eefc;box-shadow:0 0 0 4px #1b2238,0 0 18px var(--cc)}
+  .gcap.rain .ball{animation:capShake .1s ease-in-out infinite alternate,ultra 1s linear infinite}
+  .gcap .tip{position:absolute;bottom:22%;font-size:12px;color:var(--dim)}
+  .gcap.open .ball{animation:capOpen .3s ease-in forwards}
+  @keyframes capShake{0%{transform:rotate(-9deg)}100%{transform:rotate(9deg) translateY(-3px)}}
+  @keyframes capOpen{to{transform:scale(1.8);opacity:0;filter:brightness(2.5)}}
 
   /* level up */
   #levelup{background:rgba(8,6,16,.78)}
