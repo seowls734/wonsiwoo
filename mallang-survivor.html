@@ -1884,18 +1884,67 @@ function draw() {
   g.save(); g.globalAlpha = .3; g.fillStyle = "#000";
   g.beginPath(); g.ellipse(P.x, P.y + 14, 14, 5, 0, 0, TAU); g.fill(); g.restore();
   if (P.inv > 0 && Math.floor(P.inv * 20) % 2) g.globalAlpha = .45;
-  g.save(); g.translate(P.x, P.y + Math.sin(P.step / 9) * 2.2);
-  g.fillStyle = "#5fe3b6"; g.beginPath(); g.arc(0, 0, 15, 0, TAU); g.fill();
-  g.fillStyle = "#b58cff";
-  g.beginPath(); g.ellipse(0, -13, 13, 5, 0, 0, TAU); g.fill();
-  g.beginPath(); g.roundRect ? g.roundRect(-7, -22, 14, 10, 4) : g.rect(-7, -22, 14, 10); g.fill();
-  g.fillStyle = "#1b2238";
-  g.beginPath(); g.arc(-5 * P.face, -1, 2.4, 0, TAU); g.arc(5 * P.face, -1, 2.4, 0, TAU); g.fill();
-  g.strokeStyle = "#1b2238"; g.lineWidth = 1.8;
-  g.beginPath(); g.arc(0, 4, 4, .15 * Math.PI, .85 * Math.PI); g.stroke();
-  g.fillStyle = "rgba(255,140,170,.5)";
-  g.beginPath(); g.ellipse(-9, 3, 3, 2, 0, 0, TAU); g.ellipse(9, 3, 3, 2, 0, 0, TAU); g.fill();
-  g.restore(); g.globalAlpha = 1;
+  {
+    const nowS = performance.now() / 1000;
+    const moving = Math.hypot(P.vx || 0, P.vy || 0) > 20;
+    const bob = Math.sin(P.step / 9);
+    const hurt = P.inv > 0, low = P.hp < P.maxHp * .3;
+    // 말랑말랑: 걸을 때 위아래로 늘었다 줄었다, 서 있을 땐 숨쉬듯
+    const sq = moving ? 1 + bob * .07 : 1 + Math.sin(nowS * 2.4) * .03;
+    g.save(); g.translate(P.x, P.y + bob * 2.2);
+    // 발 — 걸을 때 번갈아 움직여요
+    const fp = moving ? Math.sin(P.step / 4.5) * 4 : 0;
+    g.fillStyle = "#3fbf93";
+    g.beginPath(); g.ellipse(-7 + fp, 13, 5, 3.2, 0, 0, TAU); g.ellipse(7 - fp, 13, 5, 3.2, 0, 0, TAU); g.fill();
+    g.save(); g.scale(1 / sq, sq);
+    // 몸: 젤리 느낌 그라데이션 + 윤곽 + 반짝 하이라이트
+    const bg = g.createRadialGradient(-5, -6, 2, 0, 0, 17);
+    bg.addColorStop(0, hurt ? "#ffd0dc" : "#b6ffe4"); bg.addColorStop(.55, hurt ? "#ff8fae" : "#5fe3b6"); bg.addColorStop(1, hurt ? "#e0587e" : "#2fb88a");
+    g.fillStyle = bg; g.beginPath(); g.arc(0, 0, 15, 0, TAU); g.fill();
+    g.strokeStyle = "rgba(20,60,50,.35)"; g.lineWidth = 1.5; g.stroke();
+    g.fillStyle = "rgba(255,255,255,.75)";
+    g.beginPath(); g.ellipse(-6, -7, 4.2, 2.6, -.5, 0, TAU); g.fill();
+    g.beginPath(); g.arc(-1.5, -9.5, 1.3, 0, TAU); g.fill();
+    // 모자: 챙 + 몸통 + 리본 + 작은 별
+    g.fillStyle = "#8f6ae0"; g.beginPath(); g.ellipse(0, -13, 13.5, 5, 0, 0, TAU); g.fill();
+    g.fillStyle = "#b58cff";
+    g.beginPath(); g.roundRect ? g.roundRect(-7, -23, 14, 11, 4) : g.rect(-7, -23, 14, 11); g.fill();
+    g.fillStyle = "#ff6f9c"; g.fillRect(-7, -16, 14, 3);
+    g.fillStyle = "#ffd45e"; g.save(); g.translate(3.5 * P.face, -20); g.rotate(nowS * 1.5);
+    g.beginPath(); for (let i = 0; i < 10; i++) { const q = i / 10 * TAU - Math.PI / 2, rr = i % 2 ? 1.3 : 3; g.lineTo(Math.cos(q) * rr, Math.sin(q) * rr); } g.closePath(); g.fill();
+    g.restore();
+    g.fillStyle = "rgba(255,255,255,.35)"; g.fillRect(-5, -22, 3, 6);
+    g.restore();
+    // 눈: 가끔 깜빡이고, 맞으면 질끈 감아요
+    const blink = (nowS % 3.6) < .12;
+    g.strokeStyle = "#1b2238"; g.fillStyle = "#1b2238"; g.lineWidth = 1.8; g.lineCap = "round";
+    const ex = 5 * P.face, lx = -ex, rx = ex;
+    if (hurt) {
+      [lx, rx].forEach(x => { g.beginPath(); g.moveTo(x - 2.5, -3); g.lineTo(x + 2.5, 0); g.moveTo(x - 2.5, 0); g.lineTo(x + 2.5, -3); g.stroke(); });
+    } else if (blink) {
+      [lx, rx].forEach(x => { g.beginPath(); g.moveTo(x - 2.4, -1); g.lineTo(x + 2.4, -1); g.stroke(); });
+    } else {
+      g.beginPath(); g.ellipse(lx, -1, 2.4, 2.9, 0, 0, TAU); g.ellipse(rx, -1, 2.4, 2.9, 0, 0, TAU); g.fill();
+      g.fillStyle = "#fff";
+      g.beginPath(); g.arc(lx + .8 * P.face, -2.2, .9, 0, TAU); g.arc(rx + .8 * P.face, -2.2, .9, 0, TAU); g.fill();
+    }
+    // 입: 평소엔 웃고, 맞으면 동그랗게, 체력이 적으면 삐죽
+    g.strokeStyle = "#1b2238";
+    if (hurt) { g.fillStyle = "#7a2d44"; g.beginPath(); g.ellipse(0, 5, 2.6, 3, 0, 0, TAU); g.fill(); }
+    else if (low) { g.beginPath(); g.moveTo(-3, 6); g.quadraticCurveTo(0, 3.5, 3, 6); g.stroke(); }
+    else { g.beginPath(); g.arc(0, 4, 4, .15 * Math.PI, .85 * Math.PI); g.stroke(); }
+    g.lineCap = "butt";
+    g.fillStyle = "rgba(255,140,170,.55)";
+    g.beginPath(); g.ellipse(-9.5, 3.5, 3.2, 2, 0, 0, TAU); g.ellipse(9.5, 3.5, 3.2, 2, 0, 0, TAU); g.fill();
+    // 체력이 적으면 식은땀
+    if (low) {
+      const dy = (nowS * 14) % 10;
+      g.fillStyle = "#8fd8ff"; g.globalAlpha = (1 - dy / 10) * (g.globalAlpha || 1);
+      g.beginPath(); g.moveTo(12 * -P.face, -10 + dy); g.quadraticCurveTo(15 * -P.face, -4 + dy, 12 * -P.face, -3 + dy); g.quadraticCurveTo(9 * -P.face, -4 + dy, 12 * -P.face, -10 + dy); g.fill();
+    }
+    g.restore();
+  }
+  g.globalAlpha = 1;
 
   for (const f of fx) {
     const a = clamp(f.life / f.max, 0, 1);
