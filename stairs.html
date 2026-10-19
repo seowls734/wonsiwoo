@@ -195,7 +195,7 @@ function gameOver(why) {
   fall = { t: 0, vx: face * 90, vy: -260, x: 0, y: 0, rot: 0, why };
   shake = .4;
   tone(why === "time" ? 330 : 520, 90, .6, "sawtooth", .12);
-  setTimeout(showOver, 1100);
+  overTimer = setTimeout(showOver, 1100);
 }
 function showOver() {
   state = "over";
