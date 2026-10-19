@@ -1107,6 +1107,52 @@ function archText(w) {
     swing: "앞을 통째로 후려쳐요. 어마어마하게 아파요!",
   }[w.arch] || "";
 }
+/* ================= 무기 진화 (LV 5 이후 ★1 ~ ★5) ================= */
+const STAR_MAX = 5;
+const EVO = {
+  shot: ["연사탄", "관통탄", "폭주탄", "섬멸탄", "천공탄"],
+  spread: ["샷건", "폭풍 산탄", "유성 산탄", "대폭우", "종말의 비"],
+  orbit: ["회전 방패", "수호의 고리", "성채", "철벽 요새", "불멸의 성벽"],
+  aura: ["강화 오라", "소용돌이", "폭풍의 눈", "재앙 영역", "절대 영역"],
+  chain: ["연쇄 벼락", "뇌전", "천둥 폭풍", "뇌신의 창", "심판의 벼락"],
+  bomb: ["다이너마이트", "폭뢰", "융단 폭격", "핵폭탄", "빅뱅"],
+  beam: ["레이저", "하이퍼 빔", "프리즘 캐논", "파멸의 광선", "창세의 빛"],
+  boom: ["차크람", "쌍부메랑", "회전 톱날", "폭풍 원반", "무한 궤도"],
+  homing: ["유도탄", "다연장 로켓", "크루즈 미사일", "대륙간 미사일", "유성 미사일"],
+  mine: ["클레이모어", "지뢰밭", "폭심지", "지옥 지대", "대지 붕괴"],
+  nova: ["충격파", "대파동", "초신성", "하이퍼노바", "우주 폭발"],
+  drone: ["전투 드론", "포격 드론", "드론 편대", "모함", "기계 군단"],
+  meteor: ["유성", "유성우", "혜성 낙하", "소행성 충돌", "멸종의 별"],
+  cross: ["팔방포", "별빛 십자", "성십자", "천상의 십자", "신성 심판"],
+  thorn: ["가시덤불", "강철 가시", "가시 폭풍", "가시 지옥", "세계수의 가시"],
+  swing: ["야르 몽둥이", "야르 해머", "야르 대검", "야르 철퇴", "야르 신의 빠따"],
+};
+const STAR_COL = ["#ffd45e", "#ff8a5c", "#ff6f9c", "#b58cff", "#19e5ff", "#ff36ff"];
+function starOf(id) { return (P && P.stars && P.stars[id]) || 0; }
+function evoName(w, s) {
+  if (!s) return w.name;
+  if (w.fused) return w.name + " " + "ⅡⅢⅣⅤⅥ"[s - 1];
+  const list = EVO[w.arch]; if (!list) return w.name + " +" + s;
+  return w.legend ? list[s - 1] : w.em + " " + list[s - 1];
+}
+function displayName(w) { return evoName(w, starOf(w.id)); }
+function starText(s) { return s ? "★".repeat(s) : ""; }
+function evolveWeapon(w) {
+  const s = Math.min(STAR_MAX, starOf(w.id) + 1);
+  P.stars[w.id] = s;
+  const nm = evoName(w, s), c = STAR_COL[s - 1];
+  shake = Math.max(shake, .6);
+  for (let i = 0; i < 40; i++) {
+    const a = Math.random() * TAU, sp = rnd(100, 340);
+    fx.push({ x: P.x, y: P.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: rnd(.4, .9), max: .9, c: i % 3 ? c : w.col, r: rnd(2, 5) });
+  }
+  fx.push({ ring: 1, x: P.x, y: P.y, r: 10, to: 220, life: .6, max: .6, c });
+  fx.push({ flare: 1, x: P.x, y: P.y, r: 60, rot: 0, life: .5, max: .5, c });
+  texts.push({ x: P.x, y: P.y - 80, t: starText(s) + " " + nm, life: 2.2, max: 2.2, c, s: 24 });
+  flashy(c, .85);
+  banner(`${starText(s)} 진화! ${w.ic} ${nm}`, c);
+  [523, 659, 784, 1047, 1319].slice(0, 2 + s).forEach((f, i) => tone(f, 0, .32, "triangle", .15, i * .09));
+}
 // 무기 카드에 붙는 상세 수치: 피해(현재 → 다음), 쿨타임, 개수, 특수 효과
 const EFF_TXT = { burn: "🔥 화상", slow: "❄️ 둔화", stun: "⚡ 기절", knock: "💨 밀쳐내기" };
 function weaponStats(w, lv) {
