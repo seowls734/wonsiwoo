@@ -18,7 +18,7 @@
     --sky:#6fc9ff;
     --violet:#b58cff;
     --danger:#ff5f6b;
-    --g0:#9aa3c0; --g1:#6fe39a; --g2:#6fc9ff; --g3:#b58cff; --g4:#ff8ad4; --g5:#ffd45e; --g6:#ff6f4d; --g7:#ff3d6e; --g8:#19e5ff; --g9:#ff36ff;
+    --g0:#9aa3c0; --g1:#6fe39a; --g2:#6fc9ff; --g3:#b58cff; --g4:#ff8ad4; --g5:#ffd45e; --g6:#ff6f4d; --g7:#ff3d6e; --g8:#19e5ff; --g9:#ff36ff; --g10:#ff7a1a; --g11:#ffe14d; --g12:#8f7bff;
   }
   *{box-sizing:border-box}
   html,body{height:100%;overflow:hidden}
@@ -93,6 +93,8 @@
   .item.shine{animation:shine 2.6s ease-in-out infinite}
   .item.ultra{animation:ultra 3.4s linear infinite}
   @keyframes shine{0%,100%{box-shadow:0 0 0 1px currentColor inset,0 0 10px -2px currentColor}50%{box-shadow:0 0 0 2px currentColor inset,0 0 22px 0 currentColor}}
+  .item.cosmic{animation:cosmic 2.2s linear infinite;background-image:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 70% 60%,#fff,transparent),radial-gradient(1.5px 1.5px at 45% 80%,#cfe0ff,transparent),radial-gradient(1px 1px at 85% 20%,#fff,transparent)}
+  @keyframes cosmic{0%{filter:hue-rotate(0deg) saturate(1.5) brightness(1.1);box-shadow:0 0 0 2px currentColor inset,0 0 14px 0 currentColor}50%{filter:hue-rotate(180deg) saturate(1.5) brightness(1.35);box-shadow:0 0 0 2px currentColor inset,0 0 30px 4px currentColor}100%{filter:hue-rotate(360deg) saturate(1.5) brightness(1.1);box-shadow:0 0 0 2px currentColor inset,0 0 14px 0 currentColor}}
   @keyframes ultra{0%{filter:hue-rotate(0deg) saturate(1.25)}100%{filter:hue-rotate(360deg) saturate(1.25)}}
   .ladder{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0 2px}
   .ladder span{font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid}
@@ -504,6 +506,9 @@ const GRADES = [
   { nm: "영웅", col: "var(--g7)", raw: "#ff3d6e", m: 28, shine: 1 },
   { nm: "신화", col: "var(--g8)", raw: "#19e5ff", m: 44, shine: 1 },
   { nm: "울트라", col: "var(--g9)", raw: "#ff36ff", m: 70, shine: 2 },
+  { nm: "S+급", col: "var(--g10)", raw: "#ff7a1a", m: 110, shine: 2 },
+  { nm: "SSR", col: "var(--g11)", raw: "#ffe14d", m: 175, shine: 2 },
+  { nm: "우주", col: "var(--g12)", raw: "#8f7bff", m: 280, shine: 3 },
 ];
 const SLOTS = [
   { k: "weapon", nm: "무기", ic: "⚔️" }, { k: "armor", nm: "갑옷", ic: "🧥" },
@@ -593,7 +598,7 @@ function renderLobby() {
   renderSlots(); renderGearList(); renderFuse(); renderDex();
   $("#odds").innerHTML = "뽑기 확률 — " + GRADES.slice(0, 6).map((gr, i) =>
     `<b style="color:${gr.raw}">${gr.nm}</b> ${[46, 28, 17, 7, 1.8, .2][i]}%`).join(" · ") +
-    `<br>그 위 <b style="color:#ff6f4d">S급</b> → <b style="color:#ff3d6e">영웅</b> → <b style="color:#19e5ff">신화</b> → <b style="color:#ff36ff">울트라</b> 는 오직 합성으로만 만들 수 있어요.`;
+    `<br>그 위 <b style="color:#ff6f4d">S급</b> → <b style="color:#ff3d6e">영웅</b> → <b style="color:#19e5ff">신화</b> → <b style="color:#ff36ff">울트라</b> → <b style="color:#ff7a1a">S+급</b> → <b style="color:#ffe14d">SSR</b> → <b style="color:#8f7bff">우주</b> 는 오직 합성으로만 만들 수 있어요.`;
   $("#ladder").innerHTML = GRADES.map(gr =>
     `<span style="color:${gr.raw};border-color:${gr.raw}66;background:${gr.raw}14">${gr.nm} ×${gr.m}</span>`).join("");
 }
@@ -709,7 +714,7 @@ function gearStatText(base, gr) {
 }
 function itemCard(x, extra) {
   const gr = GRADES[x.gr];
-  const cls = "item" + (extra && extra.can ? " can" : "") + (gr.shine ? " shine" : "") + (gr.shine === 2 ? " ultra" : "");
+  const cls = "item" + (extra && extra.can ? " can" : "") + (gr.shine ? " shine" : "") + (gr.shine >= 2 ? " ultra" : "") + (gr.shine === 3 ? " cosmic" : "");
   const b = el("button", cls);
   b.innerHTML = `<div class="ic">${x.base.ic}</div><div class="nm">${x.base.name}</div>
     <div class="gr" style="color:${gr.raw}">${gr.nm}</div>
