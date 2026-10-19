@@ -1317,6 +1317,44 @@ function fireWeapons(dt) {
         hit(m, dmg, Math.cos(a) * 12, Math.sin(a) * 12, w.eff);
       }
       tone(520, 180, .25, "sine", .09); nz(900, .2, .08, .9);
+    } else if (w.arch === "meteor") {
+      if (!target) continue;
+      st.cd = cd;
+      const n = p.n + Math.floor(lv / 2) + P.count, picked = [];
+      for (let i = 0; i < n; i++) {
+        const t = i === 0 ? target : (mobs.length ? mobs[Math.floor(Math.random() * mobs.length)] : null);
+        if (!t || picked.includes(t) || (t.x - P.x) ** 2 + (t.y - P.y) ** 2 > 620 * 620) continue;
+        picked.push(t);
+        // 하늘에서 떨어지는 꼬리 + 잠깐 뒤 그 자리에서 쾅
+        fx.push({ bolt: 1, x1: t.x - 70, y1: t.y - 300, x2: t.x, y2: t.y, life: .3, max: .3, c: w.col });
+        proj({ k: "bomb", x: t.x, y: t.y, vx: 0, vy: 0, dmg, r: 10, life: .3, boom: p.boom * area, col: w.col, eff: w.eff });
+      }
+      tone(700, 120, .3, "sawtooth", .08);
+    } else if (w.arch === "cross") {
+      st.cd = cd;
+      st.rot = (st.rot || 0) + .45;               // 쏠 때마다 조금씩 돌아가요
+      const n = 4 + (lv >= 4 ? 4 : 0);
+      const len = p.len * area * (1 + (lv - 1) * .08), wide = p.wide * area;
+      for (let i = 0; i < n; i++) {
+        const a = st.rot + i / n * TAU;
+        fx.push({ beam: 1, x: P.x, y: P.y, a, len, w: wide, life: .22, max: .22, c: w.col });
+        for (const m of mobs) {
+          const dx = m.x - P.x, dy = m.y - P.y;
+          const along = dx * Math.cos(a) + dy * Math.sin(a);
+          const perp = Math.abs(-dx * Math.sin(a) + dy * Math.cos(a));
+          if (along > 0 && along < len && perp < wide / 2 + m.r) hit(m, dmg, Math.cos(a) * 6, Math.sin(a) * 6, w.eff);
+        }
+      }
+      tone(1100, 500, .14, "triangle", .07);
+    } else if (w.arch === "thorn") {
+      st.cd = cd;
+      const n = p.n + nExtra * 2, off = Math.random() * TAU;
+      for (let i = 0; i < n; i++) {
+        const a = off + i / n * TAU;
+        proj({ k: "p", x: P.x, y: P.y, vx: Math.cos(a) * p.sp * P.pshot, vy: Math.sin(a) * p.sp * P.pshot,
+          dmg, r: 8 * area, life: 1.4, pierce: p.pierce + Math.floor(lv / 3), hits: [], col: w.col, eff: w.eff });
+      }
+      nz(1800, .06, .07, 1.8);
     }
   }
 }
