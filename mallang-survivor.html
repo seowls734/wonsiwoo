@@ -1013,7 +1013,7 @@ function newRun() {
     pickup: 130 * (1 + b.pickup), xpg: 1 + b.xpg, armor: Math.min(.6, b.armor), regen: b.regen,
     lifesteal: b.lifesteal, luck: b.luck, dur: 1 + b.dur, count: 0, chill: 0,
     xp: 0, lv: 1, need: 3, inv: 0, face: 1, step: 0, kills: 0, coins: 0,
-    weapons: {}, passives: {}, fused: [],
+    weapons: {}, passives: {}, fused: [], stars: {},
   };
   // 시작 무기는 바로 날아가는 종류로
   const starters = WEAPONS.filter(w => ["shot", "spread", "homing"].includes(w.arch));
