@@ -1188,12 +1188,14 @@ function evolveWeapon(w) {
 }
 // 무기 카드에 붙는 상세 수치: 피해(현재 → 다음), 쿨타임, 개수, 특수 효과
 const EFF_TXT = { burn: "🔥 화상", slow: "❄️ 둔화", stun: "⚡ 기절", knock: "💨 밀쳐내기" };
-function weaponStats(w, lv) {
+function weaponStats(w, lv, evoTo) {
   const sub = partsOf(w)[0], p = sub.p || {};
-  const dmgAt = l => Math.round((p.dmg || 0) * 1.3 * (1 + (Math.max(1, l) - 1) * .34));
-  const nx = (lv || 0) + 1;
-  const out = [lv ? `피해 <b>${dmgAt(lv)}</b>→<b style="color:var(--mint)">${dmgAt(nx)}</b>` : `피해 <b>${dmgAt(1)}</b>`];
-  if (p.cd) out.push(`쿨 <b>${(p.cd * (1 - (nx - 1) * .07)).toFixed(2)}s</b>`);
+  // evoTo가 있으면 "지금 ★ → 진화 후 ★" 기준으로, 없으면 "지금 LV → 다음 LV" 기준으로 보여줘요
+  const s0 = starOf(w.id), s1 = evoTo || s0;
+  const dmgAt = (l, s) => Math.round((p.dmg || 0) * 1.3 * (1 + (Math.max(1, l) - 1) * .34) * (1 + s * .45));
+  const nx = evoTo ? lv : (lv || 0) + 1;
+  const out = [lv ? `피해 <b>${dmgAt(lv, s0)}</b>→<b style="color:var(--mint)">${dmgAt(nx, s1)}</b>` : `피해 <b>${dmgAt(1, 0)}</b>`];
+  if (p.cd) out.push(`쿨 <b>${(p.cd * (1 - (Math.min(5, nx) - 1) * .07) * (1 - s1 * .07)).toFixed(2)}s</b>`);
   if (p.n > 1) out.push(`${p.n}발`);
   if (p.chain) out.push(`${p.chain}회 튕김`);
   if (p.boom) out.push(`폭발 ${p.boom}`);
