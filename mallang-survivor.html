@@ -1077,7 +1077,7 @@ function offer() {
         `<div class="ic" style="background:${c}22;border:1px solid ${c}">${D.ic}</div>
          <div class="nm">${displayName(D)}<br><span style="color:${c}">→ ${evoName(D, ns)}</span></div>
          <div class="lv" style="color:${c}">${starText(o.s) || "LV 5"} → ${starText(ns)} 진화</div>
-         <div class="ds">${perks.join(" · ")}<div class="wst">${weaponStats(D, 5)}</div></div>`);
+         <div class="ds">${perks.join(" · ")}<div class="wst">${weaponStats(D, 5, ns)}</div></div>`);
       b.style.setProperty("--ec", c);
       b.onclick = () => {
         evolveWeapon(D);
