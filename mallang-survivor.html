@@ -868,26 +868,81 @@ function pull(n) {
     const k = keyOf(base.id, gr);
     DB.inv[k] = (DB.inv[k] || 0) + 1;
     if (!DB.eq[base.slot]) DB.eq[base.slot] = k;
-    got.push({ base, gr, k });
+    got.push({ base, gr, k, isNew: !ownedBefore.has(base.id) && !got.some(y => y.base.id === base.id) });
   }
-  save();
-  const box = $("#pullRes"); box.innerHTML = "";
-  got.sort((a, b) => b.gr - a.gr).forEach((x, i) => {
-    const gr = GRADES[x.gr];
-    const d = el("div", "res", `${x.base.ic} ${x.base.name} <b style="color:${gr.raw}">${gr.nm}</b>`);
-    d.style.borderColor = gr.raw + "88"; d.style.background = gr.raw + "1c";
-    d.style.animationDelay = (i * .06) + "s";
-    if (gr.shine) d.style.boxShadow = `0 0 16px -2px ${gr.raw}`;
-    box.appendChild(d);
-    tone(600 + x.gr * 140, 0, .14, "triangle", .1, i * .05);
-  });
+  save(); renderCoins();
   const best = Math.max(...got.map(x => x.gr));
-  if (best >= 3) flashy(GRADES[best].raw, best >= 5 ? .9 : .4);
-  if (best >= 4) {
-    banner(`${GRADES[best].nm} 등장!`, GRADES[best].raw);
-    [784, 988, 1318].forEach((f, i) => tone(f, 0, .3, "triangle", .15, i * .12));
+  pulling = true;
+
+  // ① 캡슐이 덜덜 흔들려요 — 캡슐 색이 가장 좋은 등급을 살짝 예고해요
+  const capCol = best >= 5 ? GRADES[best].raw : best >= 3 ? GRADES[3].raw : best >= 2 ? GRADES[2].raw : "#9aa3c0";
+  const cap = el("div", "gcap" + (best >= 5 ? " rain" : ""), `<div class="ball"></div><div class="tip">눌러서 바로 열기</div>`);
+  cap.style.setProperty("--cc", capCol);
+  document.body.appendChild(cap);
+  [0, .15, .3, .45, .6].forEach((d, i) => tone(300 + i * 40, 0, .06, "square", .05, d));
+  let opened = false;
+  const open = () => {
+    if (opened) return; opened = true;
+    cap.classList.add("open"); nz(1600, .25, .14, .8); tone(880, 1760, .25, "triangle", .12);
+    setTimeout(() => { cap.remove(); reveal(); }, 280);
+  };
+  cap.onclick = open;
+  setTimeout(open, best >= 5 ? 1300 : 850);
+
+  // ② 카드가 하나씩 뒤집혀요. 가장 좋은 건 맨 마지막에 뜸을 들이고 공개
+  function reveal() {
+    const box = $("#pullRes"); box.innerHTML = "";
+    const order = got.slice().sort(() => Math.random() - .5);
+    const bi = order.findIndex(x => x.gr === best); order.push(order.splice(bi, 1)[0]);
+    const cards = order.map((x, i) => {
+      const d = el("div", "res hid", `❔ <span style="opacity:.6">???</span>`);
+      d.style.animationDelay = (i * .04) + "s";
+      if (x.gr >= 3) { d.classList.add("hint"); d.style.setProperty("--hc", GRADES[x.gr].raw); }
+      box.appendChild(d); return d;
+    });
+    const step = n === 1 ? 0 : .16;
+    order.forEach((x, i) => {
+      const last = i === order.length - 1 && n > 1;
+      const at = (i * step + (last ? .45 : 0)) * 1000;
+      setTimeout(() => {
+        const gr = GRADES[x.gr], d = cards[i];
+        d.className = "res " + (last || n === 1 ? "top" : "flip");
+        d.innerHTML = `${x.base.ic} ${x.base.name} <b style="color:${gr.raw}">${gr.nm}</b>` + (x.isNew ? `<span class="new">NEW</span>` : "");
+        d.style.borderColor = gr.raw + "88"; d.style.background = gr.raw + "1c";
+        if (gr.shine || x.gr >= 3) d.style.boxShadow = `0 0 16px -2px ${gr.raw}`;
+        tone(600 + x.gr * 140, 0, .14, "triangle", .1);
+        if (x.gr >= 3) burstDom(d, gr.raw, x.gr >= 5 ? 14 : 7);
+        if (i === order.length - 1) finishReveal(box);
+      }, at);
+    });
   }
-  renderLobby();
+  function finishReveal(box) {
+    if (best >= 3) flashy(GRADES[best].raw, best >= 5 ? .9 : .4);
+    if (best >= 4) {
+      banner(`${GRADES[best].nm} 등장!`, GRADES[best].raw);
+      [784, 988, 1318].forEach((f, i) => tone(f, 0, .3, "triangle", .15, i * .12));
+    }
+    if (n > 1) {                                  // 등급별 개수 요약
+      const cnt = {}; got.forEach(x => cnt[x.gr] = (cnt[x.gr] || 0) + 1);
+      const news = got.filter(x => x.isNew).length;
+      box.appendChild(el("div", "gsum", Object.keys(cnt).sort((a, b) => b - a)
+        .map(gi => `<b style="color:${GRADES[gi].raw}">${GRADES[gi].nm}</b> ${cnt[gi]}`).join(" · ") + (news ? ` · 새 장비 ${news}개` : "")));
+    }
+    pulling = false;
+    renderLobby();
+  }
+}
+// 화면(DOM) 요소에서 반짝이 가루가 튀어나오게
+function burstDom(node, col, n) {
+  const r = node.getBoundingClientRect();
+  for (let i = 0; i < n; i++) {
+    const s = el("i"), a = Math.random() * TAU, d = 20 + Math.random() * 40;
+    s.style.cssText = `position:fixed;left:${r.left + r.width / 2}px;top:${r.top + r.height / 2}px;width:5px;height:5px;border-radius:50%;
+      background:${col};box-shadow:0 0 8px ${col};pointer-events:none;z-index:12;transition:transform .6s ease-out,opacity .6s ease-out`;
+    document.body.appendChild(s);
+    requestAnimationFrame(() => { s.style.transform = `translate(${Math.cos(a) * d}px,${Math.sin(a) * d}px)`; s.style.opacity = "0"; });
+    setTimeout(() => s.remove(), 650);
+  }
 }
 $("#pull1").onclick = () => { ac(); pull(1); };
 $("#pull10").onclick = () => { ac(); pull(10); };
