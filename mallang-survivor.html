@@ -731,7 +731,7 @@ function renderDex() {
       const got = DB.dex.w[w.id];
       all++; if (got) have++;
       const c = dexCard({ lock: !got, cls: w.legend ? "leg" : "", ic: w.ic, nm: w.name,
-        sub: w.legend ? "★ 전설 무기 ★" : `${w.em} 속성 · ${w.an}`, d: archText(w) });
+        sub: w.legend ? "★ 전설 무기 ★" : `${w.em} 속성 · ${w.an}`, d: archText(w) + `<br><span style="font-size:.92em;opacity:.85">${weaponStats(w, 0)}</span>` });
       if (got) { c.style.borderColor = w.col + "66"; c.querySelector(".nm").style.color = w.col; }
       box.appendChild(c);
     });
