@@ -1078,7 +1078,7 @@ function offer() {
       : (D.pct ? `${D.name.split(" ").slice(1).join(" ")} +${Math.round(D.val * 100)}%` : `${D.name.split(" ").slice(1).join(" ")} +${D.val}`);
     const b = el("button", "pick" + (D.legend ? " legend" : ""),
       `<div class="ic" style="background:${D.col}22;border:1px solid ${D.col}66">${D.ic}</div>
-       <div class="nm">${D.name}</div>
+       <div class="nm">${o.kind === "w" ? displayName(D) : D.name}</div>
        <div class="lv">${o.l ? "LV " + o.l + " → " + (o.l + 1) : (D.legend ? "★ 전설 무기 ★" : o.kind === "w" ? "새 무기" : "새 능력")}</div>
        <div class="ds">${desc}</div>`);
     b.onclick = () => {
