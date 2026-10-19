@@ -1220,6 +1220,7 @@ function killMob(m) {
   const n = (m.def.boss ? 14 : 1) * (m.def.xpb || 1);
   for (let k = 0; k < n; k++) gems.push({ x: m.x + rnd(-14, 14), y: m.y + rnd(-14, 14), v: m.def.xp, t: 0 });
   burst(m.x, m.y, m.def.col, m.def.boss ? 24 : 7, m.def.boss ? 230 : 120);
+  if (fx.length < 250) fx.push({ ring: 1, x: m.x, y: m.y, r: m.r * .5, to: m.r * (m.def.boss ? 4 : 1.9), life: m.def.boss ? .6 : .25, max: m.def.boss ? .6 : .25, c: m.def.col });
   nz(m.def.boss ? 420 : 1100, m.def.boss ? .35 : .08, m.def.boss ? .28 : .09, 1);
   if (m.def.boss) { shake = .7; tone(180, 60, .5, "sawtooth", .16); }
 }
