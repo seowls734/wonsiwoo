@@ -1063,6 +1063,11 @@ function offer() {
     const src = useOwned ? owned : fresh;
     three.push(src.splice((Math.random() * src.length) | 0, 1)[0]);
   }
+  // 진화할 수 있는 무기가 있으면 진화 카드는 꼭 1장 보여줘요
+  if (evos.length && !three.some(x => x.kind === "e")) {
+    const e = pick(evos);
+    if (three.length < 3) three.push(e); else three[(Math.random() * 3) | 0] = e;
+  }
   three.forEach(o => {
     const D = o.d;
     if (o.kind === "e") {                           // ★ 진화 카드
