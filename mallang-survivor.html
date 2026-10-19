@@ -1031,7 +1031,11 @@ function offer() {
   const pool = [];
   for (const w of WEAPONS.concat(P.fused)) {
     const l = P.weapons[w.id] || 0;
-    if (l >= 5) continue;
+    if (l >= 5) {                                   // 만렙 무기는 진화 카드로
+      const s = starOf(w.id);
+      if (s < STAR_MAX) pool.push({ kind: "e", d: w, l, s });
+      continue;
+    }
     if (w.fused && !l) continue;                 // 합성 무기는 이미 가진 것만 레벨업
     if (l === 0 && wCount >= 6) continue;
     if (w.legend && l === 0 && !(P.lv >= 8 && Math.random() < .3 + P.luck)) continue;   // 전설은 레벨 8부터 아주 가끔
