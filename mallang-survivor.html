@@ -1178,7 +1178,7 @@ function weaponUnits() {
   for (const id in P.weapons) {
     const w = byId[id]; if (!w) continue;
     const lv = P.weapons[id], ps = partsOf(w);
-    ps.forEach((sub, i) => out.push({ w: sub, id: ps.length > 1 ? id + "#" + i : id, lv, root: w }));
+    ps.forEach((sub, i) => out.push({ w: sub, id: ps.length > 1 ? id + "#" + i : id, lv, root: w, star: starOf(id) }));
   }
   return out;
 }
