@@ -174,7 +174,9 @@ $("bUp").addEventListener("pointerdown", e => { e.preventDefault(); press(false)
 addEventListener("keydown", e => {
   if (e.repeat) return;
   const k = e.code;
-  if (state !== "play") { if ((k === "Space" || k === "Enter") && state !== "falling") start(); return; }
+  // 스페이스바: 언제 눌러도 처음부터 다시 시작
+  if (k === "Space") { e.preventDefault(); start(); return; }
+  if (state !== "play") { if (k === "Enter" && state !== "falling") start(); return; }
   // 한글 입력 상태에서도 되도록 ㅁ(A 자리) · ㅣ(L 자리)도 받아요
   if (k === "KeyA" || e.key === "ㅁ") press(true, $("bTurn"));
   else if (k === "KeyL" || e.key === "ㅣ") press(false, $("bUp"));
