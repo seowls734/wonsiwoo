@@ -1900,17 +1900,77 @@ function draw() {
   for (const f of fx) {
     const a = clamp(f.life / f.max, 0, 1);
     if (f.bolt) {
-      g.strokeStyle = f.c; g.globalAlpha = a; g.lineWidth = 3;
-      g.beginPath(); g.moveTo(f.x1, f.y1);
-      for (let i = 1; i <= 4; i++) {
-        const t = i / 4;
-        g.lineTo(f.x1 + (f.x2 - f.x1) * t + (i < 4 ? rnd(-9, 9) : 0), f.y1 + (f.y2 - f.y1) * t + (i < 4 ? rnd(-9, 9) : 0));
+      // 지그재그 번개: 넓고 흐린 빛 + 색 + 하얀 심지 3겹
+      const pts = [[f.x1, f.y1]];
+      for (let i = 1; i <= 5; i++) {
+        const t = i / 5;
+        pts.push([f.x1 + (f.x2 - f.x1) * t + (i < 5 ? rnd(-10, 10) : 0), f.y1 + (f.y2 - f.y1) * t + (i < 5 ? rnd(-10, 10) : 0)]);
       }
-      g.stroke(); g.globalAlpha = 1;
+      g.lineCap = "round"; g.lineJoin = "round";
+      [[10, f.c, .25], [3.5, f.c, 1], [1.4, "#fff", 1]].forEach(([lw, c, al]) => {
+        g.strokeStyle = c; g.globalAlpha = a * al; g.lineWidth = lw;
+        g.beginPath(); g.moveTo(pts[0][0], pts[0][1]); for (const q of pts) g.lineTo(q[0], q[1]); g.stroke();
+      });
+      g.globalAlpha = a * .8; g.fillStyle = "#fff";
+      g.beginPath(); g.arc(f.x2, f.y2, 5 * a + 2, 0, TAU); g.fill();
+      g.globalAlpha = 1; g.lineCap = "butt"; g.lineJoin = "miter";
     } else if (f.ring) {
       const r = f.r + (f.to - f.r) * (1 - a);
-      g.strokeStyle = f.c; g.globalAlpha = a; g.lineWidth = 4;
+      g.strokeStyle = f.c; g.globalAlpha = a * .25; g.lineWidth = 12;
+      g.beginPath(); g.arc(f.x, f.y, r, 0, TAU); g.stroke();
+      g.globalAlpha = a; g.lineWidth = 4;
+      g.beginPath(); g.arc(f.x, f.y, r, 0, TAU); g.stroke();
+      g.strokeStyle = "#fff"; g.globalAlpha = a * .6; g.lineWidth = 1.5;
       g.beginPath(); g.arc(f.x, f.y, r, 0, TAU); g.stroke(); g.globalAlpha = 1;
+    } else if (f.warn) {
+      // 운석 낙하 예고: 빙글 도는 점선 원 + 차오르는 원
+      const t = 1 - a;
+      g.save(); g.translate(f.x, f.y); g.rotate(t * 3);
+      g.strokeStyle = f.c; g.globalAlpha = .8; g.lineWidth = 2; g.setLineDash([8, 7]);
+      g.beginPath(); g.arc(0, 0, f.r, 0, TAU); g.stroke(); g.setLineDash([]);
+      g.fillStyle = f.c; g.globalAlpha = .12 + t * .2;
+      g.beginPath(); g.arc(0, 0, f.r * t, 0, TAU); g.fill();
+      g.restore(); g.globalAlpha = 1;
+    } else if (f.meteor) {
+      // 떨어지는 불덩이: 불꽃 꼬리 + 울퉁불퉁한 돌 + 달아오른 테두리
+      const t = 1 - a, e = t * t;
+      const x = f.x1 + (f.x2 - f.x1) * e, y = f.y1 + (f.y2 - f.y1) * e;
+      const ang = Math.atan2(f.y2 - f.y1, f.x2 - f.x1), L = 110;
+      g.save(); g.translate(x, y); g.rotate(ang);
+      const tg = g.createLinearGradient(-L, 0, 0, 0);
+      tg.addColorStop(0, "rgba(255,120,40,0)"); tg.addColorStop(.6, f.c); tg.addColorStop(1, "#fff6d0");
+      g.fillStyle = tg; g.globalAlpha = .85;
+      g.beginPath(); g.moveTo(-L, 0); g.quadraticCurveTo(-L * .4, -f.rr * 1.6, 0, -f.rr * 1.1); g.lineTo(0, f.rr * 1.1); g.quadraticCurveTo(-L * .4, f.rr * 1.6, -L, 0); g.fill();
+      for (let i = 1; i <= 4; i++) {                // 꼬리에 흩날리는 불씨
+        g.globalAlpha = .7 - i * .14; g.fillStyle = i % 2 ? "#ffd45e" : f.c;
+        g.beginPath(); g.arc(-i * 22, Math.sin(i * 2.3 + t * 20) * f.rr * .7, f.rr * (.5 - i * .08), 0, TAU); g.fill();
+      }
+      g.globalAlpha = 1; g.rotate(t * 9);
+      g.fillStyle = "#5a3b2e"; g.strokeStyle = f.c; g.lineWidth = 2.5;
+      g.beginPath();
+      for (let i = 0; i < 8; i++) { const q = i / 8 * TAU, rr = f.rr * (i % 2 ? .85 : 1.05); g.lineTo(Math.cos(q) * rr, Math.sin(q) * rr); }
+      g.closePath(); g.fill(); g.stroke();
+      g.fillStyle = "rgba(0,0,0,.3)";
+      g.beginPath(); g.arc(f.rr * .25, -f.rr * .2, f.rr * .28, 0, TAU); g.arc(-f.rr * .35, f.rr * .3, f.rr * .18, 0, TAU); g.fill();
+      g.restore();
+    } else if (f.crater) {
+      // 그을린 자국: 서서히 식어가는 용암 테두리
+      g.globalAlpha = a * .45; g.fillStyle = "#1a0f14";
+      g.beginPath(); g.ellipse(f.x, f.y, f.r, f.r * .62, 0, 0, TAU); g.fill();
+      g.globalAlpha = a * .7; g.strokeStyle = f.c; g.lineWidth = 2; g.setLineDash([5, 6]);
+      g.beginPath(); g.ellipse(f.x, f.y, f.r * .82, f.r * .5, 0, 0, TAU); g.stroke(); g.setLineDash([]);
+      g.globalAlpha = 1;
+    } else if (f.flare) {
+      // 십자포 발사 순간의 별 모양 섬광
+      const r = f.r * (.6 + (1 - a) * .8);
+      g.save(); g.translate(f.x, f.y); g.rotate(f.rot + Math.PI / 4);
+      g.globalAlpha = a; g.fillStyle = "#fff";
+      g.beginPath();
+      for (let i = 0; i < 8; i++) { const q = i / 8 * TAU, rr = i % 2 ? r * .22 : r; g.lineTo(Math.cos(q) * rr, Math.sin(q) * rr); }
+      g.closePath(); g.fill();
+      g.globalAlpha = a * .4; g.fillStyle = f.c;
+      g.beginPath(); g.arc(0, 0, r * .7, 0, TAU); g.fill();
+      g.restore(); g.globalAlpha = 1;
     } else if (f.swing) {
       const t = 1 - a;
       g.save(); g.translate(f.x, f.y); g.rotate(f.a - f.arc / 2 + f.arc * t);
